@@ -1,0 +1,36 @@
+version: "2"
+
+volumes:
+  data-volume:
+
+networks:
+  mongodb-odm:
+
+services:
+  mongodb:
+    image: mongo:3.4
+    volumes:
+      - /data/db
+    ports:
+      - $MONGO_PORT:27017
+    networks:
+      mongodb-odm:
+        aliases:
+          - 'mongodb'
+  php:
+    build: ./php
+    ports:
+      - $SSH_PORT:22
+    volumes:
+      - data-volume:/home/r
+#      - ./conf/etc/php5/cli/php.ini:/etc/php5/cli/php.ini:ro
+      - ./conf/etc/php5/conf.d/20-mongo.ini:/etc/php5/cli/conf.d/20-mongo.ini:ro
+      - ./conf/etc/php5/conf.d/20-mongo.ini:/etc/php5/fpm/conf.d/20-mongo.ini:ro
+      - ./conf/etc/ssh/sshd_config:/etc/ssh/sshd_config:ro
+    networks:
+      mongodb-odm:
+        aliases:
+          - 'php'
+    dns:
+      - 8.8.8.8
+      - 8.8.4.4
